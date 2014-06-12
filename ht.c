@@ -30,7 +30,7 @@ hash(char *s) {
   return h;
 }
 
-ht_t*
+ht_t *
 ht_new(int prime, int max){
   ht_t* h = (ht_t*) calloc(1, sizeof(ht_t));
   if(!h) return NULL;
@@ -88,7 +88,7 @@ ht_get(ht_t *t, char *key){
 }
 
 void
-ht_free(ht_t* t){
+ht_free(ht_t *t){
   hn_t f;
 
   for(int i = 0; i < t->prime; i++) {
