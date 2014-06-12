@@ -1,5 +1,7 @@
 #include "ht.h"
 #include <stdlib.h>
+#include <stdio.h>
+
 #include <string.h>
 #include <stdbool.h>
 
@@ -43,7 +45,7 @@ ht_new(int prime, int max){
 
 static hn_t
 _ht_get_node(ht_t *t, int i, char *key){
-  hn_t n;
+  hn_t n = NULL;
   for(n = &t->table[i]; n != NULL; n = n->next)
     if(n->key != NULL && strncmp(n->key, key, t->max) == 0)
       break;
@@ -56,7 +58,7 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup){
   hn_t n = _ht_get_node(t, i, key);
 
   if(n == NULL) {
-    n = (hn_t) calloc(1, sizeof(hn_t));
+    n = (hn_t) calloc(1, sizeof(struct hn_s));
     if(!n) return 1;
     n->next = t->table[i].next;
     t->table[i].next = n;
