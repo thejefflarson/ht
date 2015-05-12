@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <fcntl.h>
 #include <math.h>
 #include <pthread.h>
@@ -94,11 +96,14 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
     uint32_t ns = t->nb << 2;
     ht_t *nt = ht_new(t->max, ns);
     for(uint32_t i = 0; i < t->nb; i++) {
-      for(hn_t n = &t->table[i]; n != NULL; n = n->next) {
-        if(n->key != NULL) {
-          ht_set(nt, n->key, n->value, n->cleanup);
-          n->cleanup = false;
-        }
+      if(t->table[i].key != NULL)
+        ht_set(nt, t->table[i].key, t->table[i].value, t->table[i].cleanup);
+      hn_t f;
+      for(hn_t n = t->table[i].next; n != NULL;) {
+        f = n->next;
+        ht_set(nt, n->key, n->value, n->cleanup);
+        free(n);
+        n = f;
       }
     }
 
@@ -145,7 +150,6 @@ ht_free(ht_t *t) {
   hn_t f;
 
   for(uint32_t i = 0; i < t->nb; i++) {
-    // skip the first element which we'll free later
     for(hn_t n = t->table[i].next; n != NULL;) {
       f = n->next;
       free_node(n);

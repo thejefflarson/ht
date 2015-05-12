@@ -1,8 +1,9 @@
 #ifndef ht_h
 #define ht_h
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 typedef struct ht_s ht_t;
 
