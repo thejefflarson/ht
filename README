@@ -22,6 +22,9 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup);
 void *
 ht_get(ht_t *t, const char *key);
 
+int
+ht_delete(ht_t *t, const char *key);
+
 void
 ht_free(ht_t *t);
 

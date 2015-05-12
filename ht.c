@@ -35,13 +35,7 @@ init_key();
 static uint64_t
 siphash(const uint8_t *in, uint64_t inlen, const uint8_t *k);
 
-static hn_t
-insert_node(hn_t t) {
-  hn_t n = (hn_t) calloc(1, sizeof(struct hn_s));
-  n->next = t->next;
-  t->next = n;
-  return n;
-}
+
 
 static hn_t
 get_node(ht_t *t, int i, const char *key) {
@@ -61,22 +55,6 @@ free_node(hn_t n) {
   free(n);
 }
 
-static void
-free_table(ht_t *t) {
-  hn_t f;
-
-  for(uint32_t i = 0; i < t->nb; i++) {
-    // skip the first element which we'll free later
-    for(hn_t n = t->table[i].next; n != NULL;) {
-      f = n->next;
-      free_node(n);
-      n = f;
-    }
-  }
-
-  free(t->table);
-}
-
 #define DEFAULT_SIZE 32
 ht_t *
 ht_new(size_t max) {
@@ -94,8 +72,11 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
   uint32_t i = siphash((const uint8_t *)key, strnlen(key, t->max), hkey) % t->nb;
   hn_t n = get_node(t, i, key);
 
-  if(n == NULL)
-    n = insert_node(&t->table[i]);
+  if(n == NULL) {
+    n = (hn_t) calloc(1, sizeof(struct hn_s));
+    n->next = t->table[i].next;
+    t->table[i].next = n;
+  }
 
   if(n->cleanup){
     free(n->key);
@@ -131,18 +112,40 @@ void *
 ht_get(ht_t *t, const char *key) {
   uint32_t i = siphash((const uint8_t *)key, strnlen(key, t->max), hkey) % t->nb;
   hn_t n = get_node(t, i, key);
-  if(n) return n->value;
+  if(n != NULL) return n->value;
   return NULL;
 }
 
-void
+int
 ht_delete(ht_t *t, const char *key) {
+  uint32_t i = siphash((const uint8_t *)key, strnlen(key, t->max), hkey) % t->nb;
+  hn_t n = get_node(t, i, key);
+  hn_t p = NULL;
+  for(hn_t c = t->table[i].next; c != NULL; p = c, c = c->next) {
+    if(c == n) {
+      p->next = c->next;
+      free_node(c);
+      return 0;
+    }
+  }
 
+  return -1;
 }
 
 void
 ht_free(ht_t *t){
-  free_table(t);
+  hn_t f;
+
+  for(uint32_t i = 0; i < t->nb; i++) {
+    // skip the first element which we'll free later
+    for(hn_t n = t->table[i].next; n != NULL;) {
+      f = n->next;
+      free_node(n);
+      n = f;
+    }
+  }
+
+  free(t->table);
   free(t);
 }
 
