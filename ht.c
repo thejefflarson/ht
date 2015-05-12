@@ -91,6 +91,7 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
   t->ne++;
 
   if((double)t->ne / (double)t->nb > 0.75 && t->nb <= pow(2, 32) / 2) {
+    printf("resizing!\n");
     uint32_t ns = t->nb << 1;
     ht_t *nt = ht_new(t->max, ns);
     for(uint32_t i = 0; i < t->nb; i++) {
@@ -132,6 +133,7 @@ ht_delete(ht_t *t, const char *key) {
         p->next = c->next;
         free(c);
       }
+      t->ne--;
       return 0;
     }
   }

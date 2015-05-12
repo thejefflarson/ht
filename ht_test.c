@@ -25,7 +25,7 @@ main(){
   ht_delete(h, k3);
   assert(NULL == ht_get(h, k3));
 
-  for(int i = 0; i < 64000; i++) {
+  for(int i = 0; i < 500000; i++) {
     char *k;
     asprintf(&k, "%d", i);
     char *v;
