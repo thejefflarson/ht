@@ -25,13 +25,13 @@ main(){
   ht_delete(h, k3);
   assert(NULL == ht_get(h, k3));
 
-  for(int i = 0; i < 1000; i++) {
+  for(int i = 0; i < 64000; i++) {
     char *k;
     asprintf(&k, "%d", i);
     char *v;
     asprintf(&v, "%d", i);
-
     ht_set(h, k, v, true);
+    assert(v == ht_get(h, k));
   }
 
   ht_free(h);
