@@ -13,8 +13,8 @@ typedef struct hn_s {
 } *hn_t;
 
 struct ht_s {
-  int prime;
-  int max;
+  uint32_t nb;
+  size_t max;
   hn_t table;
 };
 
@@ -30,18 +30,20 @@ hash(char *s) {
   return h;
 }
 
+#define DEFAULT_SIZE 32
 ht_t *
-ht_new(int prime, int max){
+ht_new(size_t max){
   ht_t* h = (ht_t*) calloc(1, sizeof(ht_t));
   if(!h) return NULL;
-  if(!(h->table = (hn_t) calloc(prime, sizeof(struct hn_s)))){
+  if(!(h->table = (hn_t) calloc(DEFAULT_SIZE, sizeof(struct hn_s)))){
     free(h);
     return NULL;
   }
-  h->prime = prime;
+  h->nb = DEFAULT_SIZE;
   h->max = max;
   return h;
 }
+#undef DEFAULT_SIZE
 
 static hn_t
 _ht_get_node(ht_t *t, int i, char *key){
@@ -54,7 +56,7 @@ _ht_get_node(ht_t *t, int i, char *key){
 
 int
 ht_set(ht_t *t, char *key, void *value, bool cleanup){
-  int i = hash(key) % t->prime;
+  uint32_t i = hash(key) % t->nb;
   hn_t n = _ht_get_node(t, i, key);
 
   if(n == NULL) {
@@ -78,7 +80,7 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup){
 
 void *
 ht_get(ht_t *t, char *key){
-  int i = hash(key) % t->prime;
+  uint32_t i = hash(key) % t->nb;
 
   hn_t n = _ht_get_node(t, i, key);
 
@@ -91,7 +93,7 @@ void
 ht_free(ht_t *t){
   hn_t f;
 
-  for(int i = 0; i < t->prime; i++) {
+  for(uint32_t i = 0; i < t->nb; i++) {
     // skip the first element which we'll free later
     for(hn_t n = t->table[i].next; n != NULL;) {
       f = n->next;

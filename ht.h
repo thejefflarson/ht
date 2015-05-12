@@ -1,12 +1,14 @@
 #ifndef ht_h
 #define ht_h
+
+#include <stdlib.h>
 #include <stdbool.h>
 
 typedef struct ht_s ht_t;
 
-// create a new hash table with prime buckets and max key size
+// create a new hash table max key size
 ht_t *
-ht_new(int prime, int max);
+ht_new(size_t max);
 
 // set key to value, when cleanup is true, both the key and the value
 // will be freed when overwritten or on a call to ht_free
