@@ -35,8 +35,6 @@ init_key();
 static uint64_t
 siphash(const uint8_t *in, uint64_t inlen, const uint8_t *k);
 
-
-
 static hn_t
 get_node(ht_t *t, int i, const char *key) {
   hn_t n = NULL;
@@ -52,7 +50,8 @@ free_node(hn_t n) {
     free(n->key);
     free(n->value);
   }
-  free(n);
+  n->key = NULL;
+  n->value = NULL;
 }
 
 #define DEFAULT_SIZE 32
@@ -73,9 +72,13 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
   hn_t n = get_node(t, i, key);
 
   if(n == NULL) {
-    n = (hn_t) calloc(1, sizeof(struct hn_s));
-    n->next = t->table[i].next;
-    t->table[i].next = n;
+    if(t->table[i].key != NULL) {
+      n = (hn_t) calloc(1, sizeof(struct hn_s));
+      n->next = t->table[i].next;
+      t->table[i].next = n;
+    } else {
+      n = &t->table[i];
+    }
   }
 
   if(n->cleanup){
@@ -93,7 +96,7 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
     ht_t *nt = ht_new(t->max);
 
     for(uint32_t i = 0; i < t->nb; i++) {
-      for(hn_t n = t->table[i].next; n != NULL;) {
+      for(hn_t n = &t->table[i]; n != NULL;) {
         ht_set(nt, n->key, n->value, n->cleanup);
         n->cleanup = false;
       }
@@ -121,10 +124,14 @@ ht_delete(ht_t *t, const char *key) {
   uint32_t i = siphash((const uint8_t *)key, strnlen(key, t->max), hkey) % t->nb;
   hn_t n = get_node(t, i, key);
   hn_t p = NULL;
-  for(hn_t c = t->table[i].next; c != NULL; p = c, c = c->next) {
+
+  for(hn_t c = &t->table[i]; c != NULL; p = c, c = c->next) {
     if(c == n) {
-      p->next = c->next;
       free_node(c);
+      if(p != NULL) {
+        p->next = c->next;
+        free(c);
+      }
       return 0;
     }
   }
@@ -141,8 +148,10 @@ ht_free(ht_t *t){
     for(hn_t n = t->table[i].next; n != NULL;) {
       f = n->next;
       free_node(n);
+      free(n);
       n = f;
     }
+    free_node(&t->table[i]);
   }
 
   free(t->table);

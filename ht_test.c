@@ -12,7 +12,7 @@ main(){
   assert(v == ht_get(h, k));
 
   const char *k2 = "yo";
-  const char *v2 = "emptor";
+  const char *v2 = "hello";
   ht_set(h, (char *)k2, (void*)v2, false);
   assert(v2 == ht_get(h, k2));
 
@@ -20,6 +20,9 @@ main(){
   const char *v3 = "emptor";
   ht_set(h, (char *)k3, (void*)v3, false);
   assert(v3 == ht_get(h, k3));
+
+  ht_delete(h, k3);
+  assert(NULL == ht_get(h, k3));
 
   ht_free(h);
   return 0;
