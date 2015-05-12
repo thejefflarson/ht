@@ -69,7 +69,7 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
   init_key();
   uint32_t i = siphash((const uint8_t *)key, strnlen(key, t->max), hkey) % t->nb;
   hn_t n = get_node(t, i, key);
-  // printf("k %s\n", key);
+
   if(n == NULL) {
     if(t->table[i].key != NULL) {
       n = (hn_t) calloc(1, sizeof(struct hn_s));

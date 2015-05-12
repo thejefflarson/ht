@@ -6,7 +6,7 @@
 
 typedef struct ht_s ht_t;
 
-// create a new hash table
+// create a new hash table with max key size and number of buckets
 ht_t *
 ht_new(size_t max, uint32_t size);
 
