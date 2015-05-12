@@ -27,7 +27,7 @@ main(){
   assert(NULL == ht_get(h, k3));
 
   clock_t t = clock();
-  for(int i = 0; i < 100000; i++) {
+  for(int i = 0; i < 1000000; i++) {
     uint32_t *k = (uint32_t *)calloc(1, sizeof(uint32_t) + 1);
     *k = i;
     uint32_t *v = (uint32_t *)calloc(1, sizeof(uint32_t) + 1);
@@ -38,7 +38,7 @@ main(){
   printf("%f\n", (double) (clock() - t) / CLOCKS_PER_SEC);
 
   t = clock();
-  for(int i = 0; i < 1000; i++) {
+  for(int i = 0; i < 1000000; i++) {
     char k[16] = {0};
     sprintf(k, "%d", i);
     ht_get(h, k);

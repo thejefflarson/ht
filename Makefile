@@ -1,4 +1,4 @@
-CFLAGS ?= -g -O0 -std=c99
+CFLAGS ?= -g -std=c99
 all: ht_test
 ht.o: ht.c
 ht_test: ht_test.o ht.o
