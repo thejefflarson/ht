@@ -1,10 +1,11 @@
 #include "ht.h"
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 int
 main(){
-  ht_t *h = ht_new(2);
+  ht_t *h = ht_new(20, 32);
 
   const char *k = "yo";
   const char *v = "there";
@@ -23,6 +24,15 @@ main(){
 
   ht_delete(h, k3);
   assert(NULL == ht_get(h, k3));
+
+  for(int i = 0; i < 1000; i++) {
+    char *k;
+    asprintf(&k, "%d", i);
+    char *v;
+    asprintf(&v, "%d", i);
+
+    ht_set(h, k, v, true);
+  }
 
   ht_free(h);
   return 0;

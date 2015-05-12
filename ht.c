@@ -54,13 +54,12 @@ free_node(hn_t n) {
   n->value = NULL;
 }
 
-#define DEFAULT_SIZE 32
 ht_t *
-ht_new(size_t max) {
+ht_new(size_t max, uint32_t size) {
   ht_t* h = (ht_t*) calloc(1, sizeof(ht_t));
-  h->table = (hn_t) calloc(DEFAULT_SIZE, sizeof(struct hn_s));
+  h->table = (hn_t) calloc(size, sizeof(struct hn_s));
   h->ne = 0;
-  h->nb = DEFAULT_SIZE;
+  h->nb = size;
   h->max = max;
   return h;
 }
@@ -70,7 +69,7 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
   init_key();
   uint32_t i = siphash((const uint8_t *)key, strnlen(key, t->max), hkey) % t->nb;
   hn_t n = get_node(t, i, key);
-
+  // printf("k %s\n", key);
   if(n == NULL) {
     if(t->table[i].key != NULL) {
       n = (hn_t) calloc(1, sizeof(struct hn_s));
@@ -93,12 +92,13 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
 
   if((double)t->ne / (double)t->nb > 0.75 && t->nb <= pow(2, 32) / 2) {
     uint32_t ns = t->nb << 1;
-    ht_t *nt = ht_new(t->max);
-
+    ht_t *nt = ht_new(t->max, ns);
     for(uint32_t i = 0; i < t->nb; i++) {
-      for(hn_t n = &t->table[i]; n != NULL;) {
-        ht_set(nt, n->key, n->value, n->cleanup);
-        n->cleanup = false;
+      for(hn_t n = &t->table[i]; n != NULL; n = n->next) {
+        if(n->key != NULL) {
+          ht_set(nt, n->key, n->value, n->cleanup);
+          n->cleanup = false;
+        }
       }
     }
 

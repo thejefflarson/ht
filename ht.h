@@ -8,7 +8,7 @@ typedef struct ht_s ht_t;
 
 // create a new hash table
 ht_t *
-ht_new();
+ht_new(size_t max, uint32_t size);
 
 // set key to value, when cleanup is true, both the key and the value
 // will be freed when overwritten or on a call to ht_free
