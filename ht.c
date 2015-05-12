@@ -71,6 +71,7 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
   hn_t n = get_node(t, i, key);
 
   if(n == NULL) {
+    t->ne++;
     if(t->table[i].key != NULL) {
       n = (hn_t) calloc(1, sizeof(struct hn_s));
       n->next = t->table[i].next;
@@ -88,11 +89,9 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
   n->key     = key;
   n->value   = value;
   n->cleanup = cleanup;
-  t->ne++;
 
-  if((double)t->ne / (double)t->nb > 0.75 && t->nb <= pow(2, 32) / 2) {
-    printf("resizing!\n");
-    uint32_t ns = t->nb << 1;
+  if((double)t->ne / (double)t->nb > 0.80 && t->nb <= pow(2, 32) / 2) {
+    uint32_t ns = t->nb << 2;
     ht_t *nt = ht_new(t->max, ns);
     for(uint32_t i = 0; i < t->nb; i++) {
       for(hn_t n = &t->table[i]; n != NULL; n = n->next) {

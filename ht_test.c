@@ -1,7 +1,8 @@
-#include "ht.h"
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include "ht.h"
 
 int
 main(){
@@ -25,14 +26,25 @@ main(){
   ht_delete(h, k3);
   assert(NULL == ht_get(h, k3));
 
-  for(int i = 0; i < 500000; i++) {
-    char *k;
-    asprintf(&k, "%d", i);
-    char *v;
-    asprintf(&v, "%d", i);
-    ht_set(h, k, v, true);
-    assert(v == ht_get(h, k));
+  clock_t t = clock();
+  for(int i = 0; i < 1000000; i++) {
+    uint32_t *k = calloc(1, sizeof(uint32_t) + 1);
+    *k = i;
+    uint32_t *v = calloc(1, sizeof(uint32_t) + 1);
+    *v = i;
+    ht_set(h, (char *)k, v, true);
+    assert(v == ht_get(h, (char *)k));
   }
+  printf("%f\n", (double) (clock() - t) / CLOCKS_PER_SEC);
+
+  t = clock();
+  for(int i = 0; i < 1000000; i++) {
+    char k[16] = {0};
+    sprintf(k, "%d", i);
+    ht_get(h, k);
+  }
+  printf("%f\n", (double) (clock() - t) / CLOCKS_PER_SEC);
+
 
   ht_free(h);
   return 0;
