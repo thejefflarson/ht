@@ -141,7 +141,7 @@ ht_delete(ht_t *t, const char *key) {
 }
 
 void
-ht_free(ht_t *t){
+ht_free(ht_t *t) {
   hn_t f;
 
   for(uint32_t i = 0; i < t->nb; i++) {
@@ -213,8 +213,7 @@ init_key() {
   } while(0)
 
 static uint64_t
-siphash(const uint8_t *in, uint64_t inlen, const uint8_t *k)
-{
+siphash(const uint8_t *in, uint64_t inlen, const uint8_t *k) {
   /* "somepseudorandomlygeneratedbytes" */
   uint64_t v0 = 0x736f6d6570736575ULL;
   uint64_t v1 = 0x646f72616e646f6dULL;
