@@ -178,7 +178,11 @@ init_key() {
     if (rnd != NULL) break;
   }
 
-  fread(hkey, sizeof(uint8_t), KEY_LEN, rnd);
+  size_t s;
+  do {
+    s = fread(hkey, sizeof(uint8_t), KEY_LEN, rnd);
+  } while(s != KEY_LEN);
+
   fclose(rnd);
   key_init = true;
   pthread_mutex_unlock(&lock);
