@@ -88,12 +88,12 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
     free(n->value);
   }
 
-  n->key     = key;
-  n->value   = value;
-  n->cleanup = cleanup;
+  n->key      = key;
+  n->value    = value;
+  n->cleanup  = cleanup;
+  uint32_t ns = t->nb << 2;
 
-  if((double)t->ne / (double)t->nb > 0.80 && t->nb <= pow(2, 32) / 2) {
-    uint32_t ns = t->nb << 2;
+  if((double)t->ne / (double)t->nb > 0.80 && ns < pow(2, 32)) {
     ht_t *nt = ht_new(t->max, ns);
     for(uint32_t i = 0; i < t->nb; i++) {
       if(t->table[i].key != NULL)
