@@ -16,7 +16,7 @@ typedef struct hn_s {
   struct hn_s *next;
   char *key;
   void *value;
-  bool cleanup;
+  void (*cleanup)(void *node);
 } *hn_t;
 
 struct ht_s {
@@ -50,7 +50,7 @@ static void
 free_node(hn_t n) {
   if(n->cleanup){
     free(n->key);
-    free(n->value);
+    n->cleanup(n->value);
   }
   n->key = NULL;
   n->value = NULL;
@@ -67,7 +67,7 @@ ht_new(size_t max, uint32_t size) {
 }
 
 int
-ht_set(ht_t *t, char *key, void *value, bool cleanup) {
+ht_set(ht_t *t, char *key, void *value, void (*cleanup)(void *node)) {
   init_key();
   uint32_t i = siphash((const uint8_t *)key, strnlen(key, t->max), hkey) % t->nb;
   hn_t n = get_node(t, i, key);
@@ -83,10 +83,7 @@ ht_set(ht_t *t, char *key, void *value, bool cleanup) {
     }
   }
 
-  if(n->cleanup){
-    free(n->key);
-    free(n->value);
-  }
+  free_node(n);
 
   n->key      = key;
   n->value    = value;
