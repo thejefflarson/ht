@@ -59,7 +59,9 @@ free_node(hn_t n) {
 ht_t *
 ht_new(size_t max, uint32_t size) {
   ht_t* h = (ht_t*) calloc(1, sizeof(ht_t));
+  if(h == NULL) return NULL;
   h->table = (hn_t) calloc(size, sizeof(struct hn_s));
+  if(h->table == NULL) { free(h); return NULL; }
   h->ne = 0;
   h->nb = size;
   h->max = max;
